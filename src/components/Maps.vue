@@ -1,77 +1,72 @@
 <template>
   <div>
     <div ref="mapContainer" id="map"></div>
-    <input v-model="radius" type="number" min="0" max="1000" placeholder="Enter radius in meters" />
-    <button @click="drawCircle">Create circle</button>
+    <input
+      v-model="radiusVal"
+      type="number"
+      min="0"
+      max="1000"
+      placeholder="Enter radius in meters"
+    />
   </div>
 </template>
 
 <script lang="ts">
-// Google type wasn't being picked up otherwise...
 /// <reference types="googlemaps" />
 import { Loader } from '@googlemaps/js-api-loader'
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 
 let map: google.maps.Map
 let marker: google.maps.Marker | null = null
+let circle: google.maps.Circle | undefined
 
 export default defineComponent({
   name: 'GoogleMap',
+
   setup() {
-    const radius = ref(0)
-    let circle: google.maps.Circle | undefined
+    const radiusVal = ref(0)
+
+    watch(radiusVal, (newVal) => {
+      if (circle) circle.setRadius(Number(newVal))
+    })
+
+    const placeMarkerAndDrawCircle = (event: google.maps.MapMouseEvent) => {
+      if (marker) marker.setMap(null)
+
+      marker = new google.maps.Marker({
+        position: event.latLng,
+        map: map
+      })
+
+      if (circle) circle.setMap(null)
+
+      circle = new google.maps.Circle({
+        map: map,
+        center: marker.getPosition()!,
+        radius: Number(radiusVal.value)
+      })
+    }
 
     onMounted(async () => {
+      const mapDiv = document.getElementById('map')
       const loader = new Loader({
         apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
         version: 'weekly'
       })
 
       await loader.importLibrary('core')
+
+      if (mapDiv)
+        map = new google.maps.Map(mapDiv, {
+          center: { lat: 36.9463059, lng: -4.2870067 },
+          zoom: 10,
+          streetViewControl: false
+        })
+      map.addListener('click', placeMarkerAndDrawCircle)
     })
 
-    const drawCircle = () => {
-      // Check if a marker has been placed
-      if (!marker) {
-        alert('Please place a marker on the map first.')
-        return
-      }
-
-      // If there's an existing circle, remove it
-      if (circle) circle.setMap(null)
-
-      // Draw a new circle centered on the marker
-      circle = new google.maps.Circle({
-        map: map,
-        center: marker.getPosition()!,
-        radius: Number(radius.value)
-      })
-    }
-
     return {
-      radius,
-      drawCircle
-    }
-  },
-
-  mounted() {
-    const mapContainer = document.getElementById('map')
-
-    if (mapContainer) {
-      map = new google.maps.Map(mapContainer, {
-        center: { lat: 36.9463059, lng: -4.2870067 },
-        zoom: 10,
-        streetViewControl: false
-      })
-
-      map.addListener('click', (event) => {
-        if (marker) marker.setMap(null)
-
-        marker = new google.maps.Marker({
-          position: event.latLng,
-          map: map
-        })
-      })
+      radiusVal
     }
   }
 })
