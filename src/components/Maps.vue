@@ -131,7 +131,7 @@ export default defineComponent({
 
   methods: {
     scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      document.querySelector('#map')?.scrollIntoView({ block: 'start', behavior: 'smooth' })
     }
   }
 })
