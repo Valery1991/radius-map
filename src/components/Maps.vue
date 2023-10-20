@@ -16,6 +16,7 @@
       <div class="flex flex-row gap-3">
         <input
           v-model="locationInput"
+          id="locationInput"
           placeholder="Enter address, plus code, or coordinates..."
           class="w-7/12 md:w-96 rounded-lg p-2 text-black shadow-md"
           @keyup.enter="locate"
@@ -75,6 +76,7 @@ export default defineComponent({
     }
 
     const scrollToTop = () => {
+      document.getElementById('locationInput')?.blur()
       document.querySelector('#map')?.scrollIntoView({ block: 'start', behavior: 'smooth' })
     }
 
