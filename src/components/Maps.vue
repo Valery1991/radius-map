@@ -1,13 +1,35 @@
 <template>
-  <div>
-    <div ref="mapContainer" id="map"></div>
-    <input
-      v-model="radiusVal"
-      type="number"
-      min="0"
-      max="1000"
-      placeholder="Enter radius in meters"
-    />
+  <div class="relative">
+    <div class="absolute bottom-3 left-2 pr-3 w-full md:w-auto flex flex-col gap-3 z-50">
+      <div class="flex flex-col gap-1">
+        <p class="text-black font-bold">Radius (m)</p>
+        <input
+          v-model="radiusVal"
+          type="number"
+          min="0"
+          max="1000"
+          placeholder="Enter radius in meters"
+          class="w-fit rounded-lg p-2 text-black shadow-md"
+        />
+      </div>
+
+      <div class="flex flex-row gap-3">
+        <input
+          v-model="locationInput"
+          placeholder="Enter address, plus code, or coordinates..."
+          class="w-full md:w-96 rounded-lg p-2 text-black shadow-md"
+          autofocus
+        />
+        <button
+          @click="locate"
+          class="rounded-lg py-2 px-4 shadow-md bg-[#fcba03] text-black font-bold"
+        >
+          Locate
+        </button>
+      </div>
+    </div>
+
+    <div ref="mapContainer" id="map" class="w-[100vw] h-[100vh]"></div>
   </div>
 </template>
 
@@ -24,57 +46,86 @@ export default defineComponent({
   name: 'GoogleMap',
 
   setup() {
-    const radiusVal = ref(0)
+    const radiusVal = ref(600)
+    const locationInput = ref('')
 
     watch(radiusVal, (newVal) => {
       if (circle) circle.setRadius(Number(newVal))
     })
 
-    const placeMarkerAndDrawCircle = (event: google.maps.MapMouseEvent) => {
-      if (marker) marker.setMap(null)
+    const placeMarkerAndDrawCircle = (location: google.maps.LatLngLiteral) => {
+      if (marker) marker.setMap(null) // remove previous marker
 
       marker = new google.maps.Marker({
-        position: event.latLng,
+        position: location,
         map: map
       })
 
-      if (circle) circle.setMap(null)
+      if (circle) circle.setMap(null) // remove previous circle
 
       circle = new google.maps.Circle({
         map: map,
         center: marker.getPosition()!,
         radius: Number(radiusVal.value)
       })
+
+      map.setCenter(marker.getPosition()!)
+      if (map.getZoom() < 15) map.setZoom(15)
+    }
+
+    const locate = async () => {
+      const geocoder = new google.maps.Geocoder()
+
+      if (isValidCoordinates(locationInput.value)) {
+        const [lat, lng] = locationInput.value.split(',').map((coord) => parseFloat(coord.trim()))
+        map.setCenter({ lat, lng })
+        placeMarkerAndDrawCircle({ lat, lng })
+        return
+      }
+
+      geocoder.geocode({ address: locationInput.value }, (results, status) => {
+        if (status === 'OK') {
+          const location = results[0].geometry.location
+          map.setCenter(location)
+          placeMarkerAndDrawCircle({ lat: location.lat(), lng: location.lng() })
+        } else {
+          alert('Geocode was not successful for the following reason: ' + status)
+        }
+      })
+    }
+
+    const isValidCoordinates = (input: string) => {
+      const coords = input.split(',')
+      return coords.length === 2 && !isNaN(parseFloat(coords[0])) && !isNaN(parseFloat(coords[1]))
     }
 
     onMounted(async () => {
       const mapDiv = document.getElementById('map')
       const loader = new Loader({
         apiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY,
-        version: 'weekly'
+        version: 'weekly',
+        libraries: ['places'] // needed for geocoder
       })
 
       await loader.importLibrary('core')
 
-      if (mapDiv)
+      if (mapDiv) {
         map = new google.maps.Map(mapDiv, {
-          center: { lat: 36.9463059, lng: -4.2870067 },
+          center: { lat: 36.9463059, lng: -4.2870067 }, // currently set to southern Spain but feel free to adjust to whatever you want, or utilize user's current location
           zoom: 10,
           streetViewControl: false
         })
-      map.addListener('click', placeMarkerAndDrawCircle)
+        map.addListener('click', (event) => {
+          placeMarkerAndDrawCircle(event.latLng.toJSON())
+        })
+      }
     })
 
     return {
-      radiusVal
+      radiusVal,
+      locationInput,
+      locate
     }
   }
 })
 </script>
-
-<style scoped>
-#map {
-  width: 100vw;
-  height: 80vh;
-}
-</style>

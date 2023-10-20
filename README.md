@@ -6,20 +6,15 @@ This template should help get you started developing with Vue 3 in Vite.
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-## Type Support for `.vue` Imports in TS
+## Use case
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+My family is looking to buy a new plot of land in the region of southern Spain, for their animal sanctuary. To get the proper licenses, it is important that there are no other houses in a certain radius. I saw them constantly struggle on Google Maps, roughly trying to assume the distances between buildings, etc.. There are some sites out there that do support radius circles, but they struggle with address inputs or aren't fast enough. Then I realized that some of our family friends have struggled with the exact same issue.
+So I figured I would learn some Vue and create a simple lightweight app that utilizes Google Maps API. Thanks to Vite, the app is lightning fast.
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+The radius can be adjusted (unit is in meters) but is 600 meters by default. You can drop a marker on the map by clicking on any location, or set a location by entering an address, a plus code, or coordinates (`lat,lng`). It works for both map and satellite views.
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+As it uses Google Maps API, an API key is needed (which has been excluded from this repo for obvious reasons). You can either use a developer key or your own license. You should create an `.env.local` file in root, and specify the key as such:
+`VITE_APP_GOOGLE_MAPS_API_KEY=your_api_key`
 
 ## Project Setup
 
@@ -37,12 +32,6 @@ npm run dev
 
 ```sh
 npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
