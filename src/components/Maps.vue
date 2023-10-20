@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-[100dvh] w-[100dvw]">
+  <div class="relative h-[95dvh] md:h-[100dvh] w-[100dvw]">
     <div class="absolute bottom-3 left-2 pr-3 w-full md:w-auto flex flex-col gap-3 z-50">
       <div class="flex flex-col gap-1">
         <p class="text-black font-bold">Radius (m)</p>
@@ -17,8 +17,8 @@
         <input
           v-model="locationInput"
           placeholder="Enter address, plus code, or coordinates..."
-          class="w-full md:w-96 rounded-lg p-2 text-black shadow-md"
-          autofocus
+          class="w-7/12 md:w-96 rounded-lg p-2 text-black shadow-md"
+          @keyup.enter="locate"
         />
         <button
           @click="locate"
