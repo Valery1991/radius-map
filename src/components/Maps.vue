@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="relative h-[100dvh] w-[100dvw]">
     <div class="absolute bottom-3 left-2 pr-3 w-full md:w-auto flex flex-col gap-3 z-50">
       <div class="flex flex-col gap-1">
         <p class="text-black font-bold">Radius (m)</p>
@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    <div ref="mapContainer" id="map" class="w-[100vw] h-[100vh]"></div>
+    <div ref="mapContainer" id="map" class="w-full h-full"></div>
   </div>
 </template>
 
