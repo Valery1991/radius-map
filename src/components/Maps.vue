@@ -77,7 +77,7 @@ export default defineComponent({
 
     const scrollToTop = () => {
       document.getElementById('locationInput')?.blur()
-      document.querySelector('#map')?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+      document.getElementById('map')?.scrollIntoView({ block: 'start', behavior: 'smooth' })
     }
 
     const locate = async () => {
