@@ -74,6 +74,10 @@ export default defineComponent({
       if (map.getZoom() < 15) map.setZoom(15)
     }
 
+    const scrollToTop = () => {
+      document.querySelector('#map')?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    }
+
     const locate = async () => {
       const geocoder = new google.maps.Geocoder()
 
@@ -93,6 +97,8 @@ export default defineComponent({
           alert('Geocode was not successful for the following reason: ' + status)
         }
       })
+
+      scrollToTop()
     }
 
     const isValidCoordinates = (input: string) => {
@@ -125,13 +131,8 @@ export default defineComponent({
     return {
       radiusVal,
       locationInput,
+      scrollToTop,
       locate
-    }
-  },
-
-  methods: {
-    scrollToTop() {
-      document.querySelector('#map')?.scrollIntoView({ block: 'start', behavior: 'smooth' })
     }
   }
 })
